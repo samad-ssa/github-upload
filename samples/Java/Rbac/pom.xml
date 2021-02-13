@@ -47,7 +47,10 @@
 		<dependency>
 	  		<groupId>com.microsoft.azure</groupId>
 	  		<artifactId>azure-eventhubs</artifactId>
+update301
+	  		<version>3.0.2</version>
 	  		<version>3.1.1</version>
+      master
 	 	</dependency>
          <dependency>
             <groupId>com.google.code.gson</groupId>
