@@ -5,24 +5,25 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using Avro.File;
-using Avro.Generic;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.EventGrid;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Azure.WebJobs.Host;
-using Microsoft.WindowsAzure.Storage;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace FunctionEGDWDumper
 {
+    using System.Text;
+    using Avro.File;
+    using Avro.Generic;
+    using Microsoft.Azure.WebJobs;
+    using Microsoft.Azure.WebJobs.Extensions.EventGrid;
+    using Microsoft.Azure.WebJobs.Host;
+    using Microsoft.WindowsAzure.Storage;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
+
 
     public static class Function1
     {
@@ -63,18 +64,17 @@ namespace FunctionEGDWDumper
         /// Dumps the data from the Avro blob to the data warehouse (DW). 
         /// Before running this, ensure that the DW has the required <see cref="TableName"/> table created.
         /// </summary>   
-        private static async void Dump(Uri fileUri)
+        private static void Dump(Uri fileUri)
         {
             // Get the blob reference
             var storageAccount = CloudStorageAccount.Parse(StorageConnectionString);
             var blobClient = storageAccount.CreateCloudBlobClient();
-            var blob = await blobClient.GetBlobReferenceFromServerAsync(fileUri);
+            var blob = blobClient.GetBlobReferenceFromServer(fileUri);
 
             using (var dataTable = GetWindTurbineMetricsTable())
             {
                 // Parse the Avro File
-                Stream blobStream = await blob.OpenReadAsync(null, null, null);
-                using (var avroReader = DataFileReader<GenericRecord>.OpenReader(blobStream))
+                using (var avroReader = DataFileReader<GenericRecord>.OpenReader(blob.OpenRead()))
                 {
                     while (avroReader.HasNext())
                     {

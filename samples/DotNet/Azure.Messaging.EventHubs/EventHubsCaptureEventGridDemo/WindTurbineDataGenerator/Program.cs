@@ -1,23 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Azure.Messaging.EventHubs;
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace WindTurbineDataGenerator
 {
+    using System;
+    using System.Diagnostics;
+    using System.Text;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Newtonsoft.Json;
+    using Azure.Messaging.EventHubs;
+    using Azure.Messaging.EventHubs.Producer;
+
+
     internal class Program
     {
-        private const string EventHubConnectionString =
-            "<EVENT HUBS NAMESPACE CONNECTION STRING>";
-
+        private const string EventHubNamespaceConnectionString = "<EVENT HUBS NAMESPACE CONNECTION STRING>";
         private const string EventHubName = "<EVENT HUB NAME>";
-        
-        private static int Main(string[] args)
+
+        private static int Main()
         {
             Console.WriteLine("Starting wind turbine generator. Press <ENTER> to exit");
 
@@ -39,31 +40,30 @@ namespace WindTurbineDataGenerator
         {
             var random = new Random((int)DateTimeOffset.UtcNow.Ticks);
 
-            // create an Event Hubs client using the namespace connection string and the event hub name
-            EventHubClient client = new EventHubClient(EventHubConnectionString, EventHubName);
-
-            // create a producer object to send messages to the event hub
-            EventHubProducer producer = client.CreateProducer();
+            // create an Event Hubs Producer client using the namespace connection string and the event hub name
+            EventHubProducerClient producerClient = new EventHubProducerClient(EventHubNamespaceConnectionString, EventHubName);
 
             while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
                     // Simulate sending data from 100 weather sensors
-                    var devicesData = new List<EventData>();
-
+                    // prepare a batch of events to send to the event hub. 
+                    EventDataBatch eventBatch = await producerClient.CreateBatchAsync();
                     for (int i = 0; i < 100; i++)
                     {
                         int scaleFactor = random.Next(0, 25);
                         var windTurbineMeasure = GenerateTurbineMeasure("Turbine_" + i, scaleFactor);
                         EventData evData = SerializeWindTurbineToEventData(windTurbineMeasure);
-                        devicesData.Add(evData);
+                        // add the event to the batch
+                        if (eventBatch.TryAdd(evData) == false)
+                            break;
                     }
 
                     Console.Write(".");
 
-                    // send the message to the event hub
-                    await producer.SendAsync(devicesData);
+                    // send the batch of events to the event hub
+                    await producerClient.SendAsync(eventBatch);
                 }
                 catch (Exception ex)
                 {
