@@ -1,3 +1,20 @@
+ serkar.JavaRbacSeReceiveSample
+# Send events to Azure Event Hubs using Java
+
+The [Send events to Azure Event Hubs using Java](https://docs.microsoft.com/azure/event-hubs/event-hubs-java-get-started-send) tutorial walks you through ingesting into your event hub using Java with this code.
+
+To run the sample, you need to edit the [sample code](src/main/java/com/microsoft/azure/eventhubs/samples/simplesend/SimpleSend.java) and provide the following information:
+
+```java
+    final String namespaceName = "----EventHubsNamespaceName-----";
+    final String eventHubName = "----EventHubName-----";
+    final String sasKeyName = "-----SharedAccessSignatureKeyName-----";
+    final String sasKey = "---SharedAccessSignatureKey----";
+```
+
+## Prerequisites
+
+Please refer to the [overview README](../../readme.md) for prerequisites and setting up the sample environment, including creating an Event Hubs cloud namespace and an Event Hub. =======
 # Role based access sample with Azure Event Hubs Java SDK
 
 For general information on using Role based access (RBAC) with Azure Event Hubs, see the [documentation](https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-role-based-access-control).
@@ -25,7 +42,7 @@ The Azure Event Hubs Java SDK also has limited built-in support for Managed Iden
 obtain and use that identity to perform role based access. This sample can demonstrate that ability when run in an
 [appropriately-configured virtual machine](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/qs-configure-portal-windows-vm) and the managed identity
 [has been assigned the Data Owner role on your event hub.](https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-managed-service-identity)
-
+ master
 
 ## Build and run
 
